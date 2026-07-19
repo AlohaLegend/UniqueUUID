@@ -1,0 +1,19 @@
+target/
+build/
+dist/
+verify-build/
+*.class
+*.jar
+*.iml
+.idea/
+.vscode/
+.classpath
+.project
+.settings/
+
+# Local/server-only files
+*.tmp
+*.log
+*.env
+config.local.yml
+pterodactyl-api-key.tmp

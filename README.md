@@ -1,26 +1,71 @@
 # UniqueUUID
-A Minecraft bukkit plugin
 
-![Minecraft Version](https://img.shields.io/badge/Minecraft-1.18~1.21-green) ![GitHub Repo stars](https://img.shields.io/github/stars/klxf/UniqueUUID) ![release](https://img.shields.io/github/v/release/klxf/UniqueUUID) ![downloads](https://img.shields.io/github/downloads/klxf/UniqueUUID/latest/total) [![红石中继站](https://img.shields.io/badge/红石中继站-d8464f)](https://www.mczwlt.net/resource/1bdtzyph)
+Floodgate-aware username and UUID guard for Paper/Spigot servers.
 
-## 关于这个插件
-这是我学写插件以来的第一个插件，**很多功能还没写完**
+This fork keeps the original `UniqueUUID` plugin name and command so it can replace an existing
+`plugins/UniqueUUID.jar` install, but the identity logic has been rebuilt for Geyser/Floodgate
+networks.
 
-为啥要写这个插件呢？\
-是因为我的 Geyser 互通服经常有 Java 版玩家使用基岩版玩家的游戏 ID 进入服务器，某些插件就会因为同个 ID 有两个不同 UUID 而出现错误\
-一直没有找到好的解决方案，只好从头开始学习写出了这个插件
+## What It Protects
 
-## 插件的功能
-玩家第一次进入服务器将在数据库中记录下这个玩家的 ID 和 UUID
+- Java players keep using their Mojang/forwarded Java UUID.
+- Bedrock players are anchored to their Floodgate/XUID UUID.
+- Linked Bedrock accounts can use their linked Java identity.
+- Same visible username across Java and Bedrock is blocked cleanly.
+- Legacy Bedrock rows accidentally saved as offline/name UUIDs can migrate back to Floodgate UUIDs.
+- Login checks use a startup cache instead of opening MySQL on every join.
 
-此后玩家再进入服务器将获取其 UUID，与数据库中的进行比对，若不同则会被禁止进入服务器
+## Requirements
 
-## 插件的命令
-| 命令               | 描述               |
-| ------------------ | ------------------ |
-| /uniqueuuid help   | 查看命令帮助       |
-| /uniqueuuid reload | 重载插件的配置文件 |
+- Java 17+
+- Paper/Spigot-compatible server
+- MySQL/MariaDB
+- Floodgate on the backend server when Bedrock support is needed
+- `send-floodgate-data: true` on the proxy Floodgate config when using Velocity/Bungee
 
-## 未来的计划
-- [ ] 数据库不可用时采用文件储存数据
-- [x] ~~重载命令~~ *—— v1.1.0*
+## Build
+
+```powershell
+mvn clean verify package
+```
+
+The plugin jar is created at:
+
+```text
+target/UniqueUUID.jar
+```
+
+## Configuration
+
+The plugin preserves the original MySQL keys:
+
+```yaml
+mysql:
+  host: ''
+  port: 3306
+  dbname: ''
+  username: ''
+  password: ''
+```
+
+Additional identity settings live under `identity:` and `database:`. Defaults are production-safe
+for an availability-first survival server: if the cache cannot load, logins are allowed without
+writing any new identity state unless `database.fail-closed-without-cache` is set to `true`.
+
+## Commands
+
+| Command | Permission | Purpose |
+| --- | --- | --- |
+| `/uniqueuuid status` | `uniqueuuid.admin` | Show cache, Floodgate, and database state |
+| `/uniqueuuid inspect <player>` | `uniqueuuid.admin` | Show the stored identity for a username |
+| `/uniqueuuid reload` | `uniqueuuid.admin` | Reload config and identity cache |
+
+## Notes For Geyser/Floodgate Servers
+
+Floodgate officially supports checking Bedrock players through `FloodgateApi#getPlayer(UUID)` and
+`FloodgateApi#isFloodgatePlayer(UUID)`. On proxy networks, backend API access requires
+`send-floodgate-data: true` and matching Floodgate keys between proxy and backend servers.
+
+Floodgate also warns that removing the Bedrock username prefix can create duplicate visible-name
+edge cases. This plugin handles that by blocking true Java/Bedrock same-name collisions instead of
+letting downstream plugins see ambiguous users.

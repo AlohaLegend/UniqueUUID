@@ -1,0 +1,26 @@
+mysql:
+  host: ''
+  port: 3306
+  dbname: ''
+  username: ''
+  password: ''
+
+database:
+  legacy-table: player_uuid_data
+  meta-table: uuid_guard_identity_meta
+  connect-timeout-ms: 5000
+  socket-timeout-ms: 5000
+  fail-closed-without-cache: false
+  dry-run: false
+
+identity:
+  block-cross-platform-name-collisions: true
+  migrate-bedrock-offline-uuid-records: true
+  detect-bedrock-by-floodgate-name-when-offline-uuid: true
+  linked-bedrock-uses-java-identity: true
+  remember-allowed-logins: true
+
+messages:
+  duplicate-name: '&cYour Java and Bedrock username cannot be the same. Please contact staff.'
+  uuid-mismatch: '&cYour username is already tied to another account. Please contact staff.'
+  database-unavailable: '&cLogin identity checks are temporarily unavailable. Please try again shortly.'

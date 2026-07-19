@@ -1,0 +1,16 @@
+name: UniqueUUID
+main: com.instacraft.uuidguard.UniqueUuidPlugin
+version: 2.0.0-instacraft.2
+api-version: '1.18'
+author: Instacraft
+description: Floodgate-aware username and UUID guard
+softdepend:
+  - floodgate
+commands:
+  uniqueuuid:
+    description: Manage UniqueUUID identity guard
+    usage: /uniqueuuid <status|inspect|reload>
+    permission: uniqueuuid.admin
+permissions:
+  uniqueuuid.admin:
+    default: op
