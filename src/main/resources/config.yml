@@ -1,26 +1,61 @@
+# UniqueUUID configuration.
+#
+# This guard protects no-prefix Geyser/Floodgate networks from Java and Bedrock
+# players sharing the same visible username or drifting into mismatched UUID
+# records. Database values are intentionally blank in the distributed default.
+
 mysql:
+  # MySQL or MariaDB host.
   host: ''
+  # MySQL or MariaDB port.
   port: 3306
+  # Database/schema name.
   dbname: ''
+  # Database username.
   username: ''
+  # Database password.
   password: ''
 
 database:
+  # Existing legacy table used by the original UniqueUUID plugin.
   legacy-table: player_uuid_data
+
+  # Metadata table used by this rebuild for canonical identity details.
   meta-table: uuid_guard_identity_meta
+
+  # Connection and query timeout controls.
   connect-timeout-ms: 5000
   socket-timeout-ms: 5000
+
+  # false = allow joins if the cache cannot load, without writing new state.
+  # true = block joins when the identity cache is unavailable.
   fail-closed-without-cache: false
+
+  # true logs decisions without writing identity changes. Useful for testing.
   dry-run: false
 
 identity:
+  # Blocks Java/Bedrock accounts with the same visible name from both joining.
   block-cross-platform-name-collisions: true
+
+  # Repairs old Bedrock rows that were saved as offline/name UUIDs.
   migrate-bedrock-offline-uuid-records: true
+
+  # Helps detect legacy Bedrock records when the old UUID looks offline-mode.
   detect-bedrock-by-floodgate-name-when-offline-uuid: true
+
+  # Treats linked Bedrock players as their linked Java identity.
   linked-bedrock-uses-java-identity: true
+
+  # Stores allowed login observations so future checks are fast and stable.
   remember-allowed-logins: true
 
 messages:
+  # Sent when a Java and Bedrock player collide on the same visible username.
   duplicate-name: '&cYour Java and Bedrock username cannot be the same. Please contact staff.'
+
+  # Sent when a username is already tied to a different canonical identity.
   uuid-mismatch: '&cYour username is already tied to another account. Please contact staff.'
+
+  # Sent only when fail-closed-without-cache is true and the cache cannot load.
   database-unavailable: '&cLogin identity checks are temporarily unavailable. Please try again shortly.'

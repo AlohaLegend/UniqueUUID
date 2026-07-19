@@ -9,8 +9,9 @@ softdepend:
 commands:
   uniqueuuid:
     description: Manage UniqueUUID identity guard
-    usage: /uniqueuuid <status|inspect|reload>
+    usage: /uniqueuuid <help|status|inspect|reload>
     permission: uniqueuuid.admin
 permissions:
   uniqueuuid.admin:
+    description: Allows viewing identity status, inspecting stored records, and reloading the guard.
     default: op

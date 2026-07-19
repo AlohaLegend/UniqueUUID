@@ -52,6 +52,27 @@ Additional identity settings live under `identity:` and `database:`. Defaults ar
 for an availability-first survival server: if the cache cannot load, logins are allowed without
 writing any new identity state unless `database.fail-closed-without-cache` is set to `true`.
 
+### Database Settings
+
+| Key | Purpose |
+| --- | --- |
+| `database.legacy-table` | Existing table used by the original UniqueUUID plugin. |
+| `database.meta-table` | Metadata table used by this rebuild for canonical identity details. |
+| `database.connect-timeout-ms` | MySQL connection timeout. |
+| `database.socket-timeout-ms` | MySQL read/write timeout. |
+| `database.fail-closed-without-cache` | Blocks joins if the identity cache cannot load. |
+| `database.dry-run` | Logs decisions without writing identity changes. |
+
+### Identity Settings
+
+| Key | Purpose |
+| --- | --- |
+| `identity.block-cross-platform-name-collisions` | Blocks Java/Bedrock accounts with the same visible name. |
+| `identity.migrate-bedrock-offline-uuid-records` | Repairs old Bedrock rows saved as offline/name UUIDs. |
+| `identity.detect-bedrock-by-floodgate-name-when-offline-uuid` | Helps classify old Bedrock records when their UUID looks offline-mode. |
+| `identity.linked-bedrock-uses-java-identity` | Treats linked Bedrock accounts as their linked Java identity. |
+| `identity.remember-allowed-logins` | Stores allowed login observations for faster future checks. |
+
 ## Commands
 
 | Command | Permission | Purpose |
@@ -69,3 +90,10 @@ Floodgate officially supports checking Bedrock players through `FloodgateApi#get
 Floodgate also warns that removing the Bedrock username prefix can create duplicate visible-name
 edge cases. This plugin handles that by blocking true Java/Bedrock same-name collisions instead of
 letting downstream plugins see ambiguous users.
+
+## Operational Notes
+
+- Keep database credentials out of commits and public issue reports.
+- Use `/uniqueuuid status` after startup to confirm the cache loaded and Floodgate is detected.
+- Use `/uniqueuuid inspect <player>` when investigating a duplicate-name or UUID-mismatch report.
+- `database.fail-closed-without-cache: false` is the safer availability-first mode for a live survival server; it avoids mass login failures during a temporary database issue.
